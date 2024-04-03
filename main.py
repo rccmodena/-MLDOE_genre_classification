@@ -1,11 +1,12 @@
 import mlflow
 import os
 import hydra
+import omegaconf
 from omegaconf import DictConfig, OmegaConf
 
 
 # This automatically reads in the configuration
-@hydra.main(config_name='config')
+@hydra.main(config_path=".", config_name="config", version_base="1.3")
 def go(config: DictConfig):
 
     # Setup the wandb experiment. All runs will be grouped under this name
@@ -20,7 +21,7 @@ def go(config: DictConfig):
         # This was passed on the command line as a comma-separated list of steps
         steps_to_execute = config["main"]["execute_steps"].split(",")
     else:
-        assert isinstance(config["main"]["execute_steps"], list)
+        assert isinstance(config["main"]["execute_steps"], omegaconf.listconfig.ListConfig)
         steps_to_execute = config["main"]["execute_steps"]
 
     # Download step
@@ -33,7 +34,7 @@ def go(config: DictConfig):
                 "file_url": config["data"]["file_url"],
                 "artifact_name": "raw_data.parquet",
                 "artifact_type": "raw_data",
-                "artifact_description": "Data as downloaded"
+                "artifact_description": "Data_as_downloaded"
             },
         )
 
@@ -47,7 +48,7 @@ def go(config: DictConfig):
                 "input_artifact": "raw_data.parquet:latest",
                 "artifact_name": "preprocessed_data.csv",
                 "artifact_type": "preprocessed_data",
-                "artifact_description": "Data with preprocessing applied"
+                "artifact_description": "Data_with_preprocessing_applied"
             },
         )
 
@@ -71,7 +72,7 @@ def go(config: DictConfig):
             os.path.join(root_path, "segregate"),
             "main",
             parameters={
-                "input_artifact": "preprocess_data.csv:latest",
+                "input_artifact": "preprocessed_data.csv:latest",
                 "artifact_root": "data",
                 "artifact_type": "segregated_data",
                 "test_size": config["data"]["test_size"],

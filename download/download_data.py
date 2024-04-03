@@ -21,7 +21,7 @@ def go(args):
     # destroyed at the end of the context, so we don't leave anything
     # behind and the file gets removed even in case of errors
     logger.info(f"Downloading {args.file_url} ...")
-    with tempfile.NamedTemporaryFile(mode='wb+') as fp:
+    with tempfile.NamedTemporaryFile(mode="wb+", delete=False) as fp:
 
         logger.info("Creating run")
         with wandb.init(job_type="download_data") as run:
